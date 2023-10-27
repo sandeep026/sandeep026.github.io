@@ -1,0 +1,90 @@
+---
+layout: post
+title:  "Solving nonlinear optimization problems in python"
+date:   2023-10-27 23:51:22 +0530
+categories: casadi
+---
+
+This tutorial uses
+- python 3.11.4
+- casadi 3.6.3
+
+Consider the unconstrained optimization problem whose objective us defined as,  
+
+$f(x)=(x-5^2)+(y-8)^2$
+
+This is a convex problem with global solution $(x^{\*},y^{\*})=(5,8)$. The following code computes the solution to this problem numerically using IPOPT, an interior-point solver.
+
+Its worth noting the following features of the Opti class.  
+
+1. A modelling language for solving nonlinear optimization problem
+2. Interface to several solvers
+3. JIT evaluation
+
+```python
+import casadi as cs
+p=cs.Opti()
+w=p.variables(1,2)
+x=w[0]
+y=w[1]
+obj=(x-5)**2+(y-8)**2
+p.minimize(obj)
+p.solver('ipopt')
+sol=p.solve()
+print('x*: ',sol.value(x),'x*: ',sol.value(x))
+```
+```
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+This is Ipopt version 3.14.11, running with linear solver MUMPS 5.4.1.
+
+Number of nonzeros in equality constraint Jacobian...:        0
+Number of nonzeros in inequality constraint Jacobian.:        0
+Number of nonzeros in Lagrangian Hessian.............:        2
+
+Total number of variables............................:        2
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:        0
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:        0
+Total number of inequality constraints...............:        0
+        inequality constraints with only lower bounds:        0
+   inequality constraints with lower and upper bounds:        0
+        inequality constraints with only upper bounds:        0
+
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+   0  8.9000000e+01 0.00e+00 1.60e+01  -1.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1  0.0000000e+00 0.00e+00 0.00e+00  -1.0 8.00e+00    -  1.00e+00 1.00e+00f  1
+
+Number of Iterations....: 1
+
+                                   (scaled)                 (unscaled)
+Objective...............:   0.0000000000000000e+00    0.0000000000000000e+00
+Dual infeasibility......:   0.0000000000000000e+00    0.0000000000000000e+00
+Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
+Overall NLP error.......:   0.0000000000000000e+00    0.0000000000000000e+00
+
+
+Number of objective function evaluations             = 2
+Number of objective gradient evaluations             = 2
+Number of equality constraint evaluations            = 0
+Number of inequality constraint evaluations          = 0
+Number of equality constraint Jacobian evaluations   = 0
+Number of inequality constraint Jacobian evaluations = 0
+Number of Lagrangian Hessian evaluations             = 1
+Total seconds in IPOPT                               = 0.023
+
+EXIT: Optimal Solution Found.
+      solver  :   t_proc      (avg)   t_wall      (avg)    n_eval
+       nlp_f  |        0 (       0)  10.00us (  5.00us)         2
+  nlp_grad_f  |        0 (       0) 290.00us ( 96.67us)         3
+  nlp_hess_l  |        0 (       0)   6.00us (  6.00us)         1
+       total  |  40.00ms ( 40.00ms)  31.65ms ( 31.65ms)         1
+x*:  5.0 x*:  5.0
+```
