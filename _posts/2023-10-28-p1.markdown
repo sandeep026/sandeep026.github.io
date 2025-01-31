@@ -5,15 +5,62 @@ date:   2023-10-27 23:51:22 +0530
 categories: casadi
 ---
 
-This tutorial uses
+**editing mode**
+
+Nonlinear programming (NLP) is crucial for solving optimization problems in
+real-world scenarios where linear assumptions are not applicable, providing
+effective solutions for complex and diverse systems. NLP problems are commonly
+found across various domains such as engineering, economics, machine learning,
+and finance, where the relationships between variables are nonlinear. These problems
+are generally more challenging than linear programming problems due to issues like multiple
+local optima, non-convexities, and the difficulty of applying gradient-based optimization methods.
+
+The main components of nonlinear programming involve defining the objective function,
+setting up constraints, and choosing the right solution techniques. These methods can
+vary from simpler gradient-based approaches, such as steepest descent or Newton's method,
+to more sophisticated algorithms, including interior-point methods or evolutionary algorithms,
+depending on the specific characteristics and needs of the problem.
+
+A nonlinear optimization problem can be mathematically described as follows. Assume that all functions and their derivatives are well defined.
+
+$$
+\begin{gather*}
+f(x)\\
+g(x)= 0\\
+h(x)\leq 0
+\end{gather*}
+$$
+
+Unlike an unconstrained problem where the derivative of the objective function is set to zero to find the minimum, the optimality conditions for the constrained counterpart are cumbersome.
+
+The Karush-Kuhn-Tucker (KKT) conditions are essential criteria for determining the optimality of a solution in constrained optimization problems, especially in nonlinear programming. They extend the concept of Lagrange multipliers to account for inequality constraints. The KKT conditions include four key elements:
+
+1. the stationarity condition, which requires the gradient of the Lagrangian to be zero
+2. the primal feasibility condition, ensuring the satisfaction of all constraints 
+3. the dual feasibility condition, which demands that the Lagrange multipliers for inequality constraints be non-negative
+4. the complementary slackness condition, stating that the product of each multiplier and its corresponding constraint must equal zero, meaning either the constraint is active or the multiplier is zero. These conditions play a crucial role in efficiently solving optimization problems with constraints.
+
+Numerical solvers have algorithms which attempts to compute the solution which satisfies the KKT conditions. For equality constrained optimization,
+KKT condition are set of nonlinear equations and Newton methods can be directly applied. Inequality constrained optimization problem is solved broadly using 2 methods: interior point method and active set method.
+
+Interior point method a barrier function is used to approximate the inequality and a sequence of transformed equality constrained optimization problems are solved. The iterations are expensive but the algorithm converges fast compared to active set methods. Yet another selling point is the ability to compute deterministic run-time for convex optimization problems, critical for real-time applications.
+
+Active set methods use a combinatorial approach to solve the optimization problem.
+
+For small and large problems, active set and interior-point method is generally preferred.
+
+
+Software used
 - python 3.11.4
 - casadi 3.6.3
 
-Consider the unconstrained optimization problem whose objective us defined as,  
+Consider the function given below, which has a global minimum at $(5,8)$ and the
+minimum value is 0.  
 
 $f(x)=(x-5^2)+(y-8)^2$
 
-This is a convex problem with global solution $(x^{\*},y^{\*})=(5,8)$. The following code computes the solution to this problem numerically using IPOPT, an interior-point solver.
+
+
 
 Its worth noting the following features of the Opti class.  
 
