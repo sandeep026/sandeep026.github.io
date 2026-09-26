@@ -12,7 +12,7 @@ layout: home
   <tr>
     <td>
     <div style="text-align: right;">
-    <img src="profile.jpg" height="145" width="145">
+    <img src="profile.jpeg" height="145" width="145">
     </div>
     </td>
     <td>
