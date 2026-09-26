@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Solving nonlinear optimization problems in Python"
+title: "Solving nonlinear optimization problems in Python using CasADi"
 date: 2023-10-27 23:51:22 +0530
 categories: casadi
 ---
@@ -135,4 +135,5 @@ EXIT: Optimal Solution Found.
 x_opt: [0.99999999 4.74299964 3.82114998 1.37940829]
 f_opt: 17.014017145179174
 ```
-
+## Conclusion
+The primal solution obtained from optimization matches with the values provided in the test suite. CasADi provides a convenient way to formulate and solve nonlinear optimization problems in Python. The Opti interface acts as a modelling language and makes it easy to define variables, objectives, and constraints, while IPOPT handles the numerical optimization. There are several other features of the interface which is yet to be explored but will be covered in subsequent posts.
