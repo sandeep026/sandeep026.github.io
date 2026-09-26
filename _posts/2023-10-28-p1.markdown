@@ -46,34 +46,93 @@ The example was tested with:
 
 ## A simple optimization problem
 
-Consider the following objective function:
+Consider the HS71 problem from the Hock-Schittkowski test suite.
 
-$$
-f(x,y) = (x-5)^2 + (y-8)^2
-$$
-
-The function has a global minimum at
-
-$$
-(x^*,y^*) = (5,8)
-$$
-
-and the minimum objective value is
-
-$$
-f(x^*,y^*) = 0.
-$$
-
-Although this is a simple convex quadratic problem, it provides a good introduction to CasADi's `Opti` interface.
+$$\begin{aligned}
+\min_{x \in \mathbb{R}^4} \quad & f(x) = x_1 x_4 (x_1 + x_2 + x_3) + x_3 \\[1ex]
+\text{subject to} \quad & x_1 x_2 x_3 x_4 \ge 25 \\[0.5ex]
+& x_1^2 + x_2^2 + x_3^2 + x_4^2 = 40 \\[0.5ex]
+& 1 \le x_i \le 5, \quad \forall i \in \{1, 2, 3, 4\}
+\end{aligned}$$
 
 ## Solving the problem with CasADi
 
 First, create an `Opti` object and define the decision variables:
 
 ```python
-import casadi as cs
+import casadi as ca
+opti = ca.Opti()
+x = opti.variable(4)
+opti.minimize(x[0] * x[3] * (x[0] + x[1] + x[2]) + x[2])
+opti.subject_to(x[0] * x[1] * x[2] * x[3] >= 25)
+opti.subject_to(x[0]**2 + x[1]**2 + x[2]**2 + x[3]**2 == 40)
+opti.subject_to(opti.bounded(1, x, 5))
+opti.set_initial(x, [1, 5, 5, 1])
+opti.solver('ipopt')
+sol = opti.solve()
+x_opt = sol.value(x)
+f_opt = sol.value(opti.f)
+print("x_opt:", x_opt)
+print("f_opt:", f_opt)
+```
 
-opti = cs.Opti()
+```shell
+This is Ipopt version 3.14.19, running with linear solver MUMPS 5.8.2.
 
-x = opti.variable()
-y = opti.variable()
+Number of nonzeros in equality constraint Jacobian...:        4
+Number of nonzeros in inequality constraint Jacobian.:        8
+Number of nonzeros in Lagrangian Hessian.............:       10
+
+Total number of variables............................:        4
+                     variables with only lower bounds:        0
+                variables with lower and upper bounds:        0
+                     variables with only upper bounds:        0
+Total number of equality constraints.................:        1
+Total number of inequality constraints...............:        5
+        inequality constraints with only lower bounds:        1
+   inequality constraints with lower and upper bounds:        4
+        inequality constraints with only upper bounds:        0
+
+iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+   0  1.6000000e+01 1.20e+01 5.32e-01  -1.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1  1.6925367e+01 8.17e-01 1.19e+01  -1.0 6.45e-01    -  7.27e-02 1.00e+00f  1
+   2  1.7314044e+01 3.91e-02 5.11e-01  -1.0 1.70e-01    -  1.00e+00 1.00e+00h  1
+   3  1.6851834e+01 2.75e-01 5.83e-02  -1.7 2.81e-01    -  8.11e-01 1.00e+00h  1
+   4  1.7051066e+01 4.85e-03 2.76e-03  -1.7 6.13e-02    -  1.00e+00 1.00e+00h  1
+   5  1.7012001e+01 7.14e-03 6.22e-03  -3.8 3.66e-02    -  9.45e-01 9.98e-01h  1
+   6  1.7014272e+01 1.73e-05 9.72e-06  -3.8 3.31e-03    -  1.00e+00 1.00e+00h  1
+   7  1.7014021e+01 1.22e-07 1.82e-07  -5.7 2.69e-04    -  1.00e+00 1.00e+00h  1
+   8  1.7014017e+01 1.77e-11 2.52e-11  -8.6 3.32e-06    -  1.00e+00 1.00e+00h  1
+
+Number of Iterations....: 8
+
+                                   (scaled)                 (unscaled)
+Objective...............:   1.7014017145179174e+01    1.7014017145179174e+01
+Dual infeasibility......:   2.5158541916425747e-11    2.5158541916425747e-11
+Constraint violation....:   1.7706724975141697e-11    1.7706724975141697e-11
+Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
+Complementarity.........:   2.5277070233440647e-09    2.5277070233440647e-09
+Overall NLP error.......:   2.5277070233440647e-09    2.5277070233440647e-09
+
+
+Number of objective function evaluations             = 9
+Number of objective gradient evaluations             = 9
+Number of equality constraint evaluations            = 9
+Number of inequality constraint evaluations          = 9
+Number of equality constraint Jacobian evaluations   = 9
+Number of inequality constraint Jacobian evaluations = 9
+Number of Lagrangian Hessian evaluations             = 8
+Total seconds in IPOPT                               = 0.005
+
+EXIT: Optimal Solution Found.
+      solver  :   t_proc      (avg)   t_wall      (avg)    n_eval
+       nlp_f  |        0 (       0)  13.00us (  1.44us)         9
+       nlp_g  |        0 (       0)  31.00us (  3.44us)         9
+  nlp_grad_f  |        0 (       0)  15.00us (  1.50us)        10
+  nlp_hess_l  |        0 (       0)  37.00us (  4.62us)         8
+   nlp_jac_g  |        0 (       0)  29.00us (  2.90us)        10
+       total  |   7.00ms (  7.00ms)   6.25ms (  6.25ms)         1
+x_opt: [0.99999999 4.74299964 3.82114998 1.37940829]
+f_opt: 17.014017145179174
+```
+
